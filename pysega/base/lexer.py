@@ -1,8 +1,13 @@
 class Lexer (object):
-    tokens = []
+    reserved = []
+    tokens = [
+        'PLUS', 'MINUS', 'DIVISION',
+        'LPARENTESIS', 'RPARENTESIS', 'LARROW', 'RARROW',
+        'ID'
+    ]
 
     """ LEX Tokens Common Rules """
-    t_ignore            = ' ,\t\\'
+    t_ignore            = ' ,\t'
     t_PLUS              = r'\+'
     t_MINUS             = r'\-'
     t_DIVISION          = r'\\'
@@ -11,8 +16,8 @@ class Lexer (object):
     t_LARROW            = r'\<'
     t_RARROW            = r'\>'
 
-    @lex.TOKEN(r'[\n|\r\n]+')
     def t_newline(self, t):
+        r"[\n|\r\n]+"
         t.lexer.lineno += len(t.value)
 
     def t_error(self, t):

@@ -44,69 +44,70 @@ class Lexer(BaseLexer):
     ]
 
     """ LEX Tokens """
-    tokens = BaseLexer.tokens /
-        + ['OPCODE', 'SIZE', 'REGISTER'] /
+    tokens = BaseLexer.tokens \
+        + ['OPCODE', 'SIZE', 'REGISTER'] \
         + ASM_TYPES
 
     """ Return Opcodes List """
-    def getOpcodes():
+    def getOpcodes(self):
         temp = []
-        for opcode in ASM_OPCODES:
+        for opcode in self.ASM_OPCODES:
             if "cc" not in opcode:
                 temp.append(opcode)
             else:
-                for condition in ASM_CONDITIONS:
+                for condition in self.ASM_CONDITIONS:
                     temp.append(opcode.replace('cc', condition))
         return temp
 
     """ LEX Tokens Function Rules """
-    @lex.TOKEN(r"[0-9A-Za-z_:]+")
     def t_ID(self, t):
-        opcodes = getOpcodes()
+        r"[0-9A-Za-z_:]+"
+        opcodes = self.getOpcodes()
         if t.value.upper() in opcodes:
             t.type = 'OPCODE'
             t.value = t.value.upper()
-        elif t.value.upper() in ASM_REGISTERS:
+        elif t.value.upper() in self.ASM_REGISTERS:
             t.type = 'REGISTER'
             t.value = t.value.upper()
         return t
 
-    @lex.TOKEN(r"(?:\.)[b|w|l|s|B|W|L|S]")
     def t_SIZE(self, t):
+        r"(?:\.)[b|w|l|s|B|W|L|S]"
         if t.value.upper() == 'L':
             t.value = 'LONG'
         elif t.value.upper() == 'W':
             t.value = 'WORD'
-        else:
+        elif t.value.upper() == 'B':
             t.value = 'BYTE'
-        return t
+        else:
+            return t
 
-    @lex.TOKEN(r"((?:[\"])(.*?)(?:[\"])|(?:[\'])(.*?)(?:[\']))")
     def t_STRING(self, t):
+        r"((?:[\"])(.*?)(?:[\"])|(?:[\'])(.*?)(?:[\']))"
         t.value = t.value[1:-1]
         return t
 
-    @lex.TOKEN(r"(?:\#\%)[0-1]+")
     def t_BINARY(self, t):
+        r"(?:\#\%)[0-1]+"
         t.value = int(t.value[2:],2)
         return t
 
-    @lex.TOKEN(r"(?:\#)[0-9]+")
     def t_DECIMAL(self, t):
+        r"(?:\#)[0-9]+"
         t.value = int(t.value[1:],10)
         return t
 
-    @lex.TOKEN(r"(?:\#\@)[0-7]+")
     def t_OCTAL(self, t):
+        r"(?:\#\@)[0-7]+"
         t.value = int(t.value[2:],8)
         return t
 
-    @lex.TOKEN(r"(?:\#\$)([0-9A-Fa-f]+)")
     def t_HEXADECIMAL(self, t):
+        r"(?:\#\$)([0-9A-Fa-f]+)"
         t.value = int(t.value[2:],16)
         return t
 
-    @lex.TOKEN(r"(?:\$)[0-9A-Fa-f]+")
     def t_OFFSET(self, t):
+        r"(?:\$)[0-9A-Fa-f]+"
         t.value = int(t.value[1:],16)
         return t
