@@ -9,8 +9,8 @@ class Lexer(BaseLexer):
         'VC', 'VS'
     ]
 
-    ''' Motorola 68000 Opcodes Set '''
-    ASM_OPCODES = [
+    ''' Motorola 68000 Instructions Set '''
+    ASM_INSTRUCTIONS = [
         'ABCD', 'ADD', 'ADDA', 'ADDI', 'ADDQ', 'ADDX',
         'AND', 'ANDI', 'ASL', 'ASR', 'Bcc', 'BCHG',
         'BCLR', 'BRA', 'BSET', 'BSR', 'BTST', 'CHK', 'CLR', 'CMP',
@@ -45,26 +45,26 @@ class Lexer(BaseLexer):
 
     """ LEX Tokens """
     tokens = BaseLexer.tokens \
-        + ['OPCODE', 'SIZE', 'REGISTER'] \
+        + ['INSTRUCTION', 'SIZE', 'REGISTER'] \
         + ASM_TYPES
 
     """ Return Opcodes List """
-    def getOpcodes(self):
+    def getInstructions(self):
         temp = []
-        for opcode in self.ASM_OPCODES:
-            if "cc" not in opcode:
-                temp.append(opcode)
+        for instruction in self.ASM_INSTRUCTIONS:
+            if "cc" not in instruction:
+                temp.append(instruction)
             else:
                 for condition in self.ASM_CONDITIONS:
-                    temp.append(opcode.replace('cc', condition))
+                    temp.append(instruction.replace('cc', condition))
         return temp
 
     """ LEX Tokens Function Rules """
     def t_ID(self, t):
         r"[0-9A-Za-z_:]+"
-        opcodes = self.getOpcodes()
-        if t.value.upper() in opcodes:
-            t.type = 'OPCODE'
+        instructions = self.getInstructions()
+        if t.value.upper() in instructions:
+            t.type = 'INSTRUCTION'
             t.value = t.value.upper()
         elif t.value.upper() in self.ASM_REGISTERS:
             t.type = 'REGISTER'
@@ -73,14 +73,13 @@ class Lexer(BaseLexer):
 
     def t_SIZE(self, t):
         r"(?:\.)[b|w|l|s|B|W|L|S]"
-        if t.value.upper() == 'L':
+        if t.value.upper() == '.L':
             t.value = 'LONG'
-        elif t.value.upper() == 'W':
+        elif t.value.upper() == '.W':
             t.value = 'WORD'
-        elif t.value.upper() == 'B':
+        elif t.value.upper() == '.B':
             t.value = 'BYTE'
-        else:
-            return t
+        return t
 
     def t_STRING(self, t):
         r"((?:[\"])(.*?)(?:[\"])|(?:[\'])(.*?)(?:[\']))"
