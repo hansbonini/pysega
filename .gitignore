@@ -1,5 +1,6 @@
-bin
-lib
-include
+bin/*
+lib/*
+include/*
 *.pyc
 parser.log
+parsetab.py
